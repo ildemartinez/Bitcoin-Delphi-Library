@@ -64,3 +64,14 @@ __recovery/
 
 # Castalia statistics file (since XE7 Castalia is distributed with Delphi)
 *.stat
+
+
+# Project specific files
+core_and_data/*
+core_and_data/**
+core_and_data/**/*
+
+#!core-and-data/readme-txt
+#!core-and-data/start.bat
+#!core-and-data/stop.bat
+#!core-and-data/start_no_connections.bat
