@@ -1,9 +1,9 @@
-program BTCExposed;
+program BlockChainAnalyzer;
 
 uses
   Vcl.Forms,
-  mainform in 'mainform.pas' {Form2},
-  st4makers.BitCoin in '..\..\..\..\src\st4makers.BitCoin.pas';
+  MainFormUnit in 'MainFormUnit.pas' {Form2},
+  st4makers.BitCoin in '..\src\st4makers.BitCoin.pas';
 
 {$R *.res}
 
