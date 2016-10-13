@@ -71,7 +71,7 @@ core_and_data/*
 core_and_data/**
 core_and_data/**/*
 
-#!core-and-data/readme-txt
-#!core-and-data/start.bat
-#!core-and-data/stop.bat
-#!core-and-data/start_no_connections.bat
+!core-and-data/readme-txt
+!core-and-data/start.bat
+!core-and-data/stop.bat
+!core-and-data/start_no_connections.bat
