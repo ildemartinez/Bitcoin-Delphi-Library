@@ -3,7 +3,7 @@ object Form2: TForm2
   Top = 0
   Caption = 'Bitcoin blockchain explorer'
   ClientHeight = 647
-  ClientWidth = 898
+  ClientWidth = 935
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,8 +16,8 @@ object Form2: TForm2
   PixelsPerInch = 96
   TextHeight = 13
   object Button1: TButton
-    Left = 8
-    Top = 136
+    Left = 692
+    Top = 31
     Width = 75
     Height = 25
     Caption = 'Button1'
@@ -25,29 +25,32 @@ object Form2: TForm2
     OnClick = Button1Click
   end
   object Memo1: TMemo
-    Left = 664
+    Left = 773
     Top = 25
-    Width = 234
+    Width = 162
     Height = 603
     Align = alRight
     TabOrder = 1
+    ExplicitLeft = 736
   end
   object StatusBar1: TStatusBar
     Left = 0
     Top = 628
-    Width = 898
+    Width = 935
     Height = 19
     Panels = <
       item
         Text = 'Initializing...'
         Width = 50
       end>
+    ExplicitWidth = 898
   end
   object ActionMainMenuBar1: TActionMainMenuBar
     Left = 0
     Top = 0
-    Width = 898
+    Width = 935
     Height = 25
+    UseSystemFont = False
     ActionManager = ActionManager1
     Caption = 'ActionMainMenuBar1'
     Color = clMenuBar
@@ -56,15 +59,12 @@ object Form2: TForm2
     ColorMap.BtnSelectedFont = clBlack
     ColorMap.UnusedColor = clWhite
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
+    Font.Color = clBlack
     Font.Height = -12
     Font.Name = 'Segoe UI'
     Font.Style = []
     Spacing = 0
-    ExplicitLeft = 72
-    ExplicitTop = 344
-    ExplicitWidth = 150
-    ExplicitHeight = 29
+    ExplicitWidth = 898
   end
   object Timer1: TTimer
     Enabled = False

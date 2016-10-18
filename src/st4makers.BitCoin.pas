@@ -9,6 +9,9 @@ const
   GenesisHashBlock =
     '000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f';
 
+  LargestTransBlock =
+    '000000000000048eafc216a4b55f5cf2400786925e01d611bcf7964465de13e9';
+
 type
   TInfoRecord = record
     version: string;
@@ -29,7 +32,7 @@ type
     protocolversion: string;
     localservices: string;
     localrelay: string;
-    timeoffset: string;
+    timeoffset: TDateTime;
     connections: string;
     relayfee: string;
     warnings: string;
@@ -41,6 +44,9 @@ type
     Hash, Prev, Next: string;
     merkleroot: string;
     transactions: tstringlist;
+    time, mediantime: TDateTime;
+    height: integer;
+
   end;
 
   TBCN = class(TComponent)
@@ -58,7 +64,7 @@ type
     destructor Destroy; override;
 
     procedure Start;
-    function GetResultFromJSON(const aJSON: string): string;
+    function GetResultFromJSON(const ajson: string): string;
     function GetBlockJSON(const aBlockHash: string): string;
     function GetBlockHash(const aBlockNumber: integer): string;
     function GetBlock(const aBlockHash: string): TBlock;
@@ -72,10 +78,25 @@ type
     property OnReady: TNotifyEvent read fOnReady write fOnReady;
   end;
 
+function GetGlobalBNC: TBCN;
+
 implementation
 
 uses
-  System.SysUtils, forms;
+  System.SysUtils, forms, System.dateutils;
+
+var
+  aGlobalTBCN: TBCN;
+
+function GetGlobalBNC: TBCN;
+begin
+  if aGlobalTBCN = nil then
+  begin
+    aGlobalTBCN := TBCN.Create(nil);
+  end;
+
+  result := aGlobalTBCN;
+end;
 
 constructor TBCN.Create(Owner: TComponent);
 begin
@@ -120,7 +141,7 @@ begin
   fJSON := TJsonobject.Create;
   if fJSON.Parse(BytesOf(json), 0) > 0 then
   begin
-    result.aJSON := json;
+    result.ajson := json;
     aa := fJSON.GetValue('result');
     result.Hash := aa.GetValue<string>('hash');
 
@@ -141,6 +162,10 @@ begin
     begin
       result.transactions.Add(en.GetCurrent.ToString);
     end;
+
+    result.height := aa.GetValue<Int64>('height');
+    result.time := UnixToDateTime(aa.GetValue<Int64>('time'));
+    result.mediantime := UnixToDateTime(aa.GetValue<Int64>('mediantime'));
   end;
   fJSON.free;
 
@@ -168,14 +193,14 @@ end;
 
 function TBCN.GetInfo: TInfoRecord;
 var
-  aJSON: string;
+  ajson: string;
   aa: tjsonvalue;
 begin
-  aJSON := post
+  ajson := post
     ('{"jsonrpc": "1.0", "id":"BTCExposed", "method": "getinfo", "params": [] }');
 
   fJSON := TJsonobject.Create;
-  if fJSON.Parse(BytesOf(aJSON), 0) > 0 then
+  if fJSON.Parse(BytesOf(ajson), 0) > 0 then
   begin
     aa := fJSON.GetValue('result');
     result.version := aa.GetValue<string>('version');
@@ -195,14 +220,14 @@ end;
 
 function TBCN.GetNetworkInfo: TNetWorkInfoRecord;
 var
-  aJSON: string;
+  ajson: string;
   aa: tjsonvalue;
 begin
-  aJSON := post
+  ajson := post
     ('{"jsonrpc": "1.0", "id":"BTCExposed", "method": "getnetworkinfo", "params": [] }');
 
   fJSON := TJsonobject.Create;
-  if fJSON.Parse(BytesOf(aJSON), 0) > 0 then
+  if fJSON.Parse(BytesOf(ajson), 0) > 0 then
   begin
     aa := fJSON.GetValue('result');
     result.version := aa.GetValue<string>('version');
@@ -210,7 +235,7 @@ begin
     result.protocolversion := aa.GetValue<string>('protocolversion');
     result.localservices := aa.GetValue<string>('localservices');
     result.localrelay := aa.GetValue<string>('localrelay');
-    result.timeoffset := aa.GetValue<string>('timeoffset');
+    result.timeoffset := UnixToDateTime(aa.GetValue<Int64>('timeoffset'));
     result.connections := aa.GetValue<string>('connections');
     result.relayfee := aa.GetValue<string>('relayfee');
     result.warnings := aa.GetValue<string>('warnings');
@@ -219,10 +244,10 @@ begin
   fJSON.free;
 end;
 
-function TBCN.GetResultFromJSON(const aJSON: string): string;
+function TBCN.GetResultFromJSON(const ajson: string): string;
 begin
   fJSON := TJsonobject.Create;
-  if fJSON.Parse(BytesOf(aJSON), 0) > 0 then
+  if fJSON.Parse(BytesOf(ajson), 0) > 0 then
     result := fJSON.GetValue<string>('result');
   fJSON.free;
 end;
@@ -267,5 +292,9 @@ begin
 
   end;
 end;
+
+initialization
+
+aGlobalTBCN := nil;
 
 end.

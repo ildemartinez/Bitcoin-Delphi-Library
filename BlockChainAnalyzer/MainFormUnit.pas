@@ -64,7 +64,8 @@ begin
   with TBlockDetailViewForm.Create(self) do
   begin
     show;
-    BlockHash := GenesisHashBlock;
+//    BlockHash := GenesisHashBlock;
+    BlockHash := LargestTransBlock
   end;
 end;
 
@@ -122,7 +123,7 @@ constructor TForm2.Create(Owner: TComponent);
 begin
   inherited;
 
-  aBCN := TBCN.Create(self);
+  aBCN := GetGlobalBNC;
 
   aBCN.OnReady := RPCReady;
 end;
