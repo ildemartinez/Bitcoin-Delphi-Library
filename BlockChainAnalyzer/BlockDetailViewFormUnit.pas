@@ -57,8 +57,8 @@ begin
   aBlock := GetGlobalBNC.GetBlock(Value);
 
   Panel1.Caption := Value;
-  lblPrev.Caption := aBlock.Prev;
-  lblNext.Caption := aBlock.Next;
+  lblPrev.Caption := aBlock.previousblockhash;
+  lblNext.Caption := aBlock.nextblockhash;
 
 //  Label1.Caption := DateTimeToStr(aBlock.mediantime);
   label1.Caption := inttostr(ablock.height);

@@ -13,6 +13,12 @@ const
     '000000000000048eafc216a4b55f5cf2400786925e01d611bcf7964465de13e9';
 
 type
+
+  TTransaction = record
+    hex, txid, hash: string;
+    time, blocktime: TDateTime;
+  end;
+
   TInfoRecord = record
     version: string;
     protocolversion: string;
@@ -41,12 +47,24 @@ type
   TBlock = class(TObject)
   public
     ajson: string;
-    Hash, Prev, Next: string;
-    merkleroot: string;
-    transactions: tstringlist;
-    time, mediantime: TDateTime;
+    hash: string;
+    confirmations: integer;
+    strippedsize: integer;
+    size: integer;
+    weight: integer;
     height: integer;
+    version: integer;
+    versionHex: string;
+    merkleroot: string;
 
+    transactions: tstringlist;
+
+    time, mediantime: TDateTime;
+    nonce: int64;
+    bits: string;
+    difficulty: extended;
+    chainwork: string;
+    previousblockhash, nextblockhash: string;
   end;
 
   TBCN = class(TComponent)
@@ -74,6 +92,7 @@ type
     function GetBlockCount: string;
 
     function GetRawTransaction(const atx: string): string;
+    function GetTransaction(const atx: string): TTransaction;
 
     property OnReady: TNotifyEvent read fOnReady write fOnReady;
   end;
@@ -143,18 +162,17 @@ begin
   begin
     result.ajson := json;
     aa := fJSON.GetValue('result');
-    result.Hash := aa.GetValue<string>('hash');
-
-    // genesis block doesnt have prev
-    try
-      result.Prev := aa.GetValue<string>('previousblockhash');
-    except
-      result.Prev := '';
-    end;
-
-    result.Next := aa.GetValue<string>('nextblockhash');
+    result.hash := aa.GetValue<string>('hash');
+    result.confirmations := aa.GetValue<integer>('confirmations');
+    result.strippedsize := aa.GetValue<integer>('strippedsize');
+    result.size := aa.GetValue<integer>('size');
+    result.weight := aa.GetValue<integer>('weight');
+    result.height := aa.GetValue<integer>('height');
+    result.version := aa.GetValue<integer>('version');
+    result.versionHex := aa.GetValue<string>('versionHex');
     result.merkleroot := aa.GetValue<string>('merkleroot');
 
+    // get transactions
     result.transactions := tstringlist.Create;
     tx := aa.GetValue<TJSONArray>('tx');
     en := tx.GetEnumerator;
@@ -163,9 +181,21 @@ begin
       result.transactions.Add(en.GetCurrent.ToString);
     end;
 
-    result.height := aa.GetValue<Int64>('height');
     result.time := UnixToDateTime(aa.GetValue<Int64>('time'));
     result.mediantime := UnixToDateTime(aa.GetValue<Int64>('mediantime'));
+    result.nonce := aa.GetValue<Int64>('nonce');
+    result.bits := aa.GetValue<string>('bits');
+    result.difficulty := aa.GetValue<extended>('difficulty');
+    result.chainwork := aa.GetValue<string>('chainwork');
+
+    // genesis block doesnt have prev
+    try
+      result.previousblockhash := aa.GetValue<string>('previousblockhash');
+    except
+      result.previousblockhash := '';
+    end;
+    result.nextblockhash := aa.GetValue<string>('nextblockhash');
+
   end;
   fJSON.free;
 
@@ -252,11 +282,33 @@ begin
   fJSON.free;
 end;
 
+function TBCN.GetTransaction(const atx: string): TTransaction;
+var
+  ajson: string;
+  aa: tjsonvalue;
+begin
+  ajson := self.GetRawTransaction(atx);
+
+  fJSON := TJsonobject.Create;
+  if fJSON.Parse(BytesOf(ajson), 0) > 0 then
+  begin
+    aa := fJSON.GetValue('result');
+    result.time := UnixToDateTime(aa.GetValue<Int64>('time'));
+    result.blocktime := UnixToDateTime(aa.GetValue<Int64>('blocktime'));
+  end;
+
+  fJSON.free;
+end;
+
 function TBCN.GetRawTransaction(const atx: string): string;
 begin
-  result := post
-    (format('{"jsonrpc": "1.0", "id":"BTCExposed", "method": "getrawtransaction", "params": [%s,1] }',
-    [atx]));
+  try
+    result := post
+      (format('{"jsonrpc": "1.0", "id":"BTCExposed", "method": "getrawtransaction", "params": [%s,1] }',
+      [atx]));
+  except
+    result := '';
+  end;
 end;
 
 function TBCN.post(const command: string): string;
@@ -293,6 +345,28 @@ begin
   end;
 end;
 
+{ TBlock }
+{
+  function TBlock.GetRawTransaction(const txid: string): TTransaction;
+  var
+  ajson: string;
+  aa: tjsonvalue;
+  begin
+  result := post
+  (format('{"jsonrpc": "1.0", "id":"BTCExposed", "method": "getrawtransaction", "params": [%s,1] }
+{ [atx]));
+
+  fJSON := TJsonobject.Create;
+  if fJSON.Parse(BytesOf(ajson), 0) > 0 then
+  begin
+  aa := fJSON.GetValue('result');
+  result.time := UnixToDateTime(aa.GetValue<Int64>('time'));
+  result.blocktime := UnixToDateTime(aa.GetValue<Int64>('blocktime'));
+  end;
+
+  fJSON.free;
+  end;
+}
 initialization
 
 aGlobalTBCN := nil;

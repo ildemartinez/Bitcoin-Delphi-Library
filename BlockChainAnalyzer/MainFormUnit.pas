@@ -74,44 +74,28 @@ var
   k, kk: integer;
   aHash0: string;
   aBlock: TBlock;
-
+  aTx : TTransaction;
 begin
   aHash0 := aBCN.GetBlockHash(0);
 
   Memo1.Lines.Add('Genesis block hash :' + aHash0);
 
-  for k := 1 to 100 do
+  for k := 1 to 100000 do
   begin
     aBlock := aBCN.GetBlock(aHash0);
-    Memo1.Lines.Add('Next block: ' + aBlock.Next);
-    // Memo1.Lines.Add(ablock.ajson);
+    Memo1.Lines.Add(ablock.ajson);
+    Memo1.Lines.Add('Next block: ' + aBlock.nextblockhash);
+    Memo1.Lines.Add('');
 
     for kk := 0 to aBlock.transactions.Count - 1 do
     begin
       Memo1.Lines.Add('  transactions :' + aBlock.transactions[kk]);
+      aTX := aBCN.GetTransaction(ablock.transactions[kk]);
+     // Memo1.Lines.Add(datetimetostr(atx.time) );
     end;
 
-    aHash0 := aBlock.Next;
+    aHash0 := aBlock.nextblockhash;
 
-    // ahash0 := aBCN.GetBlockHash(k);
-    // Memo1.Lines.Add(ahash);
-
-    // Memo1.Lines.Add(aBCN.GetBlock(ahash).Next);
-    // Memo1.Lines.Add(aBCN.GetBlockJSON(ahash));
-    { tt := aBCN.GetBlock(ahash).transactions;
-      for kk := 0 to tt.Count - 1 do
-      begin
-      Memo1.Lines.Add(tt[kk]);
-
-      Memo1.Lines.Add(aBCN.GetRawTransaction(tt[kk]));
-      end;
-      Memo1.Lines.Add('');
-    }
-    // Memo1.Lines.Add(aBCN.GetInfo.version);
-    // Memo1.Lines.Add(aBCN.GetInfo.protocolversion);
-
-    // Memo1.Lines.Add(aBCN.GetNetworkInfo.subversion);
-    // Memo1.Lines.Add(    aBCN.GetBlockCount);
     Application.ProcessMessages;
 
     if Memo1.Lines.Count > 1000 then

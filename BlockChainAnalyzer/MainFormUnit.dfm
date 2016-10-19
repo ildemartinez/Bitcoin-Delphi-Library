@@ -16,7 +16,7 @@ object Form2: TForm2
   PixelsPerInch = 96
   TextHeight = 13
   object Button1: TButton
-    Left = 692
+    Left = 196
     Top = 31
     Width = 75
     Height = 25
@@ -25,13 +25,12 @@ object Form2: TForm2
     OnClick = Button1Click
   end
   object Memo1: TMemo
-    Left = 773
+    Left = 400
     Top = 25
-    Width = 162
+    Width = 535
     Height = 603
     Align = alRight
     TabOrder = 1
-    ExplicitLeft = 736
   end
   object StatusBar1: TStatusBar
     Left = 0
@@ -43,7 +42,6 @@ object Form2: TForm2
         Text = 'Initializing...'
         Width = 50
       end>
-    ExplicitWidth = 898
   end
   object ActionMainMenuBar1: TActionMainMenuBar
     Left = 0
@@ -64,7 +62,6 @@ object Form2: TForm2
     Font.Name = 'Segoe UI'
     Font.Style = []
     Spacing = 0
-    ExplicitWidth = 898
   end
   object Timer1: TTimer
     Enabled = False

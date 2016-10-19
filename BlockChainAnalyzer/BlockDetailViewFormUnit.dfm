@@ -35,7 +35,7 @@ object BlockDetailViewForm: TBlockDetailViewForm
   object lblPrev: TLabel
     Left = 8
     Top = 357
-    Width = 529
+    Width = 33
     Height = 13
     BiDiMode = bdRightToLeftNoAlign
     Caption = 'lblNext'
@@ -91,10 +91,13 @@ object BlockDetailViewForm: TBlockDetailViewForm
       ExplicitLeft = -20
       ExplicitTop = 0
       ExplicitWidth = 377
+      ExplicitHeight = 0
     end
     object TabSheet2: TTabSheet
       Caption = 'Transacctions'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 281
       ExplicitHeight = 165
       object Memo2: TMemo
