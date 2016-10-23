@@ -37,6 +37,7 @@ type
     aBCN: TBCN;
 
     procedure RPCReady(Sender: TObject);
+    procedure NewBlock(Sender: TObject);
     procedure WMStartup(var Msg: TMessage); message WM_STARTUP;
   public
     { Public declarations }
@@ -110,6 +111,7 @@ begin
   aBCN := GetGlobalBNC;
 
   aBCN.OnReady := RPCReady;
+  aBCN.OnNewBlock := NewBlock;
 end;
 
 procedure TForm2.FormShow(Sender: TObject);
@@ -117,6 +119,11 @@ begin
   PostMessage(Handle, WM_STARTUP, 0, 0);
   OnShow := nil; // only ever post the message once
 
+end;
+
+procedure TForm2.NewBlock(Sender: TObject);
+begin
+  // new block arrives
 end;
 
 procedure TForm2.RPCReady(Sender: TObject);

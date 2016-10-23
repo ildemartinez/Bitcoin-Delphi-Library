@@ -70,6 +70,7 @@ type
   TBCN = class(TComponent)
   strict private
     fOnReady: TNotifyEvent;
+    fOnNewBlock: TNotifyEvent;
 
     aHTTP: TIdHTTP;
     JsonToSend: TStringStream;
@@ -95,6 +96,8 @@ type
     function GetTransaction(const atx: string): TTransaction;
 
     property OnReady: TNotifyEvent read fOnReady write fOnReady;
+    property OnNewBlock: TNotifyEvent read fOnNewBlock write fOnNewBlock;
+
   end;
 
 function GetGlobalBNC: TBCN;
@@ -181,9 +184,9 @@ begin
       result.transactions.Add(en.GetCurrent.ToString);
     end;
 
-    result.time := UnixToDateTime(aa.GetValue<Int64>('time'));
-    result.mediantime := UnixToDateTime(aa.GetValue<Int64>('mediantime'));
-    result.nonce := aa.GetValue<Int64>('nonce');
+    result.time := UnixToDateTime(aa.GetValue<int64>('time'));
+    result.mediantime := UnixToDateTime(aa.GetValue<int64>('mediantime'));
+    result.nonce := aa.GetValue<int64>('nonce');
     result.bits := aa.GetValue<string>('bits');
     result.difficulty := aa.GetValue<extended>('difficulty');
     result.chainwork := aa.GetValue<string>('chainwork');
@@ -265,7 +268,7 @@ begin
     result.protocolversion := aa.GetValue<string>('protocolversion');
     result.localservices := aa.GetValue<string>('localservices');
     result.localrelay := aa.GetValue<string>('localrelay');
-    result.timeoffset := UnixToDateTime(aa.GetValue<Int64>('timeoffset'));
+    result.timeoffset := UnixToDateTime(aa.GetValue<int64>('timeoffset'));
     result.connections := aa.GetValue<string>('connections');
     result.relayfee := aa.GetValue<string>('relayfee');
     result.warnings := aa.GetValue<string>('warnings');
@@ -293,8 +296,8 @@ begin
   if fJSON.Parse(BytesOf(ajson), 0) > 0 then
   begin
     aa := fJSON.GetValue('result');
-    result.time := UnixToDateTime(aa.GetValue<Int64>('time'));
-    result.blocktime := UnixToDateTime(aa.GetValue<Int64>('blocktime'));
+    result.time := UnixToDateTime(aa.GetValue<int64>('time'));
+    result.blocktime := UnixToDateTime(aa.GetValue<int64>('blocktime'));
   end;
 
   fJSON.free;
