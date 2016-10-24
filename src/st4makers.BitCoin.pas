@@ -113,6 +113,9 @@ type
   private
     { Private declarations }
     fBCN: TBCN;
+
+    LastBlockStored: int64;
+
     procedure CallEvents;
     procedure CallBlockCountEvent;
   protected
@@ -419,20 +422,30 @@ end;
 
 procedure TBlockThread.CallEvents;
 begin
-  if assigned(fBCN.OnNewBlock) then
-    fBCN.OnNewBlock(fBCN.GetBlock(fBCN.GetBlockHash(0)));
+  if LastBlockStored < fBCN.GetBlockCount then
+  begin
+    if assigned(fBCN.OnNewBlock) then
+      fBCN.OnNewBlock(fBCN.GetBlock(fBCN.GetBlockHash(LastBlockStored)));
+
+    inc(LastBlockStored);
+  end;
 end;
 
 procedure TBlockThread.Execute;
 begin
   inherited;
 
+  LastBlockStored := 0; // read from database latest block stored
+
+  Synchronize(CallBlockCountEvent);
+
   while not Terminated do
   begin
-     fBCN.GetInfo;
-     Sleep(1000);
-     Synchronize(CallEvents);
-     Synchronize(CallBlockCountEvent);
+    fBCN.GetInfo;
+    // Sleep(10);
+
+    Synchronize(CallEvents);
+    Synchronize(CallBlockCountEvent);
   end;
 
 end;

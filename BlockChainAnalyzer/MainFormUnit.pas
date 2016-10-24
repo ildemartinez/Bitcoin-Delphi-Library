@@ -31,6 +31,8 @@ type
     procedure Action2Execute(Sender: TObject);
   private
     { Private declarations }
+    fBlockCount : int64;
+
     aBCN: TBCN;
     aBlockChainDB: TBlockChainDB;
 
@@ -71,7 +73,9 @@ end;
 
 procedure TForm2.BlockCount(const aBlockcount: cardinal);
 begin
-  StatusBar1.Panels.Items[0].Text := 'Block count: ' + inttostr(aBlockcount);
+  fBlockCount := aBlockcount;
+
+  StatusBar1.Panels.Items[0].Text := 'Block count: ' + inttostr(fBlockCount);
 end;
 
 procedure TForm2.Button1Click(Sender: TObject);
@@ -135,7 +139,9 @@ end;
 procedure TForm2.NewBlock(const aBlock: TBlock);
 begin
   // new block arrives
-  Memo1.Lines.Add(aBlock.hash);
+ // Memo1.Lines.Add(aBlock.hash);
+  StatusBar1.Panels.Items[1].Text := format('Processing block %d - %f%%',
+    [aBlock.height, (aBlock.height/fBlockCount)*100]);
 end;
 
 procedure TForm2.RPCReady(Sender: TObject);

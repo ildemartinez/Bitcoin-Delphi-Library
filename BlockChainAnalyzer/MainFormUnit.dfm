@@ -26,9 +26,9 @@ object Form2: TForm2
   end
   object Memo1: TMemo
     Left = 400
-    Top = 27
+    Top = 25
     Width = 535
-    Height = 601
+    Height = 603
     Align = alRight
     ScrollBars = ssBoth
     TabOrder = 1
@@ -41,6 +41,10 @@ object Form2: TForm2
     Panels = <
       item
         Text = 'Initializing...'
+        Width = 250
+      end
+      item
+        Text = 'Processing block '
         Width = 50
       end>
   end
@@ -48,7 +52,7 @@ object Form2: TForm2
     Left = 0
     Top = 0
     Width = 935
-    Height = 27
+    Height = 25
     UseSystemFont = False
     ActionManager = ActionManager1
     Caption = 'ActionMainMenuBar1'
