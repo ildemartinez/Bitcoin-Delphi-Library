@@ -78,3 +78,6 @@ core_and_data/**
 core-and-data/data/*
 core-and-data/data/**
 
+core-and-data/bitcoin-0.13.0/include/bitcoinconsensus.h
+
+
