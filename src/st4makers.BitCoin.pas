@@ -67,10 +67,18 @@ type
     previousblockhash, nextblockhash: string;
   end;
 
+  TBlockThread = class;
+
+  TNewBlockEvent = procedure(const aBlock: TBlock) of object;
+  TBlockCountEvent = procedure(const aBlockCoun: cardinal) of object;
+
   TBCN = class(TComponent)
   strict private
     fOnReady: TNotifyEvent;
-    fOnNewBlock: TNotifyEvent;
+    fOnNewBlock: TNewBlockEvent;
+    fOnBlockCount: TBlockCountEvent;
+
+    fBlockThread: TBlockThread;
 
     aHTTP: TIdHTTP;
     JsonToSend: TStringStream;
@@ -90,17 +98,28 @@ type
     function GetInfo: TInfoRecord;
     function GetDifficulty: string;
     function GetNetworkInfo: TNetWorkInfoRecord;
-    function GetBlockCount: string;
+    function GetBlockCount: int64;
 
     function GetRawTransaction(const atx: string): string;
     function GetTransaction(const atx: string): TTransaction;
 
     property OnReady: TNotifyEvent read fOnReady write fOnReady;
-    property OnNewBlock: TNotifyEvent read fOnNewBlock write fOnNewBlock;
-
+    property OnNewBlock: TNewBlockEvent read fOnNewBlock write fOnNewBlock;
+    property OnBlockCount: TBlockCountEvent read fOnBlockCount
+      write fOnBlockCount;
   end;
 
-function GetGlobalBNC: TBCN;
+  TBlockThread = class(TThread)
+  private
+    { Private declarations }
+    fBCN: TBCN;
+    procedure CallEvents;
+    procedure CallBlockCountEvent;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(const aBCN: TBCN; CreateSuspended: boolean);
+  end;
 
 implementation
 
@@ -129,12 +148,19 @@ begin
   aHTTP.Request.Username := 'test';
   aHTTP.Request.BasicAuthentication := true;
 
+  fBlockThread := TBlockThread.Create(self, true);
 end;
 
 destructor TBCN.Destroy;
 begin
-  aHTTP.free;
 
+  fBlockThread.Terminate;
+
+  while not fBlockThread.Terminated do;
+
+  fBlockThread.free;
+
+  aHTTP.free;
   inherited;
 end;
 
@@ -192,11 +218,11 @@ begin
     result.chainwork := aa.GetValue<string>('chainwork');
 
     // genesis block doesnt have prev
-    try
-      result.previousblockhash := aa.GetValue<string>('previousblockhash');
-    except
+    if result.height > 0 then
+      result.previousblockhash := aa.GetValue<string>('previousblockhash')
+    else
       result.previousblockhash := '';
-    end;
+
     result.nextblockhash := aa.GetValue<string>('nextblockhash');
 
   end;
@@ -211,10 +237,11 @@ begin
     [aBlockHash]));
 end;
 
-function TBCN.GetBlockCount: string;
+function TBCN.GetBlockCount: int64;
 begin
-  result := GetResultFromJSON
-    (post('{"jsonrpc": "1.0", "id":"BTCExposed", "method": "getblockcount", "params": [] }')
+  result := strtoint
+    (GetResultFromJSON
+    (post('{"jsonrpc": "1.0", "id":"BTCExposed", "method": "getblockcount", "params": [] }'))
     );
 end;
 
@@ -339,6 +366,9 @@ begin
     try
       GetInfo;
       fReady := true;
+
+      fBlockThread.Start;
+
       if assigned(fOnReady) then
         fOnReady(self);
     except
@@ -370,8 +400,41 @@ end;
   fJSON.free;
   end;
 }
-initialization
+{ TBlockThread }
 
-aGlobalTBCN := nil;
+constructor TBlockThread.Create(const aBCN: TBCN; CreateSuspended: boolean);
+begin
+  inherited Create(CreateSuspended);
+
+  fBCN := aBCN;
+
+  Priority := tpIdle;
+end;
+
+procedure TBlockThread.CallBlockCountEvent;
+begin
+  if assigned(fBCN.OnBlockCount) then
+    fBCN.OnBlockCount(fBCN.GetBlockCount);
+end;
+
+procedure TBlockThread.CallEvents;
+begin
+  if assigned(fBCN.OnNewBlock) then
+    fBCN.OnNewBlock(fBCN.GetBlock(fBCN.GetBlockHash(0)));
+end;
+
+procedure TBlockThread.Execute;
+begin
+  inherited;
+
+  while not Terminated do
+  begin
+     fBCN.GetInfo;
+     Sleep(1000);
+     Synchronize(CallEvents);
+     Synchronize(CallBlockCountEvent);
+  end;
+
+end;
 
 end.

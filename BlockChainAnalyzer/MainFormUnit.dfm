@@ -26,10 +26,11 @@ object Form2: TForm2
   end
   object Memo1: TMemo
     Left = 400
-    Top = 25
+    Top = 27
     Width = 535
-    Height = 603
+    Height = 601
     Align = alRight
+    ScrollBars = ssBoth
     TabOrder = 1
   end
   object StatusBar1: TStatusBar
@@ -47,7 +48,7 @@ object Form2: TForm2
     Left = 0
     Top = 0
     Width = 935
-    Height = 25
+    Height = 27
     UseSystemFont = False
     ActionManager = ActionManager1
     Caption = 'ActionMainMenuBar1'
@@ -62,13 +63,6 @@ object Form2: TForm2
     Font.Name = 'Segoe UI'
     Font.Style = []
     Spacing = 0
-  end
-  object Timer1: TTimer
-    Enabled = False
-    Interval = 2000
-    OnTimer = Timer1Timer
-    Left = 24
-    Top = 64
   end
   object ActionManager1: TActionManager
     ActionBars = <

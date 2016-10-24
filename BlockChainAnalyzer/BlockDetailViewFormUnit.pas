@@ -54,7 +54,7 @@ var
   aBlock: TBlock;
   k: Integer;
 begin
-  aBlock := GetGlobalBNC.GetBlock(Value);
+//  aBlock := GetGlobalBNC.GetBlock(Value);
 
   Panel1.Caption := Value;
   lblPrev.Caption := aBlock.previousblockhash;
