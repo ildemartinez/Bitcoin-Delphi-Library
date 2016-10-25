@@ -9,10 +9,14 @@ uses
   Vcl.ComCtrls, Vcl.ExtCtrls,
 
   st4makers.BitCoin,
-  st4makers.BitCoin.DB,
 
   Vcl.ToolWin, Vcl.ActnMan, Vcl.ActnCtrls, System.Actions,
-  Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls, Vcl.ActnMenus;
+  Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls, Vcl.ActnMenus,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait,
+  Data.DB, FireDAC.Comp.Client, FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLiteDef,
+  FireDAC.Phys.SQLite;
 
 type
 
@@ -24,6 +28,7 @@ type
     Action1: TAction;
     ActionMainMenuBar1: TActionMainMenuBar;
     Action2: TAction;
+    FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
 
     procedure Button1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -140,6 +145,7 @@ procedure TForm2.NewBlock(const aBlock: TBlock);
 begin
   // new block arrives
  // Memo1.Lines.Add(aBlock.hash);
+
   StatusBar1.Panels.Items[1].Text := format('Processing block %d - %f%%',
     [aBlock.height, (aBlock.height/fBlockCount)*100]);
 end;

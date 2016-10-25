@@ -3,7 +3,9 @@ unit st4makers.BitCoin;
 interface
 
 uses
-  Classes, IdHTTP, System.json;
+  Classes, IdHTTP, System.json,
+
+  FireDAC.Comp.Client;
 
 const
   GenesisHashBlock =
@@ -68,7 +70,7 @@ type
   end;
 
   TBlockThread = class;
-
+  TBlockChainDB = class;
   TNewBlockEvent = procedure(const aBlock: TBlock) of object;
   TBlockCountEvent = procedure(const aBlockCoun: cardinal) of object;
 
@@ -87,7 +89,7 @@ type
     function post(const command: string): string;
 
   public
-    constructor Create(Owner: TComponent); override;
+    constructor Create(Owner: TComponent);
     destructor Destroy; override;
 
     procedure Start;
@@ -114,6 +116,8 @@ type
     { Private declarations }
     fBCN: TBCN;
 
+    fBCNDB: TBlockChainDB;
+
     LastBlockStored: int64;
 
     procedure CallEvents;
@@ -122,12 +126,26 @@ type
     procedure Execute; override;
   public
     constructor Create(const aBCN: TBCN; CreateSuspended: boolean);
+    destructor Destroy; override;
+  end;
+
+  TBlockChainDB = class
+  strict private
+    FDConnection: TFDConnection;
+    FDCommand: TFDCommand;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure StoreBlock(const aBlock: TBlock);
   end;
 
 implementation
 
 uses
-  System.SysUtils, forms, System.dateutils;
+  System.SysUtils, forms, System.dateutils,
+
+  FireDAC.Stan.Factory;
 
 var
   aGlobalTBCN: TBCN;
@@ -412,22 +430,38 @@ begin
   fBCN := aBCN;
 
   Priority := tpIdle;
+
+  fBCNDB := TBlockChainDB.Create;
+end;
+
+destructor TBlockThread.Destroy;
+begin
+  fBCNDB.free;
+
+  inherited;
 end;
 
 procedure TBlockThread.CallBlockCountEvent;
 begin
   if assigned(fBCN.OnBlockCount) then
     fBCN.OnBlockCount(fBCN.GetBlockCount);
+
 end;
 
 procedure TBlockThread.CallEvents;
+var
+  aBlock: TBlock;
 begin
   if LastBlockStored < fBCN.GetBlockCount then
   begin
+    aBlock := fBCN.GetBlock(fBCN.GetBlockHash(LastBlockStored));
+
     if assigned(fBCN.OnNewBlock) then
-      fBCN.OnNewBlock(fBCN.GetBlock(fBCN.GetBlockHash(LastBlockStored)));
+      fBCN.OnNewBlock(aBlock);
 
     inc(LastBlockStored);
+
+    fBCNDB.StoreBlock(aBlock);
   end;
 end;
 
@@ -448,6 +482,38 @@ begin
     Synchronize(CallBlockCountEvent);
   end;
 
+end;
+
+{ TBlockChainDB }
+
+constructor TBlockChainDB.Create;
+begin
+  FDConnection := TFDConnection.Create(nil);
+  FDConnection.Params.Add
+    ('Database=..\..\..\core-and-data\metadata\metadata.db');
+  FDConnection.Params.Add('DriverID=SQLite');
+
+  FDCommand := TFDCommand.Create(FDConnection);
+  FDCommand.Connection := FDConnection;
+
+  FDConnection.Connected := true;
+end;
+
+destructor TBlockChainDB.Destroy;
+begin
+  FDCommand.free;
+  FDConnection.free;
+
+  inherited;
+end;
+
+procedure TBlockChainDB.StoreBlock(const aBlock: TBlock);
+begin
+  FDCommand.CommandText.Clear;
+  FDCommand.CommandText.Add
+    (format('insert into blocks (height, hash, time, mediantime) values (%d,"%s",%d, %d)',
+    [aBlock.height, aBlock.hash,DateTimeToUnix(aBlock.time),DateTimeToUnix(aBlock.mediantime)]));
+  FDCommand.Execute;
 end;
 
 end.

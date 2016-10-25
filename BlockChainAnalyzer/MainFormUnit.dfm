@@ -26,9 +26,9 @@ object Form2: TForm2
   end
   object Memo1: TMemo
     Left = 400
-    Top = 25
+    Top = 27
     Width = 535
-    Height = 603
+    Height = 601
     Align = alRight
     ScrollBars = ssBoth
     TabOrder = 1
@@ -52,7 +52,7 @@ object Form2: TForm2
     Left = 0
     Top = 0
     Width = 935
-    Height = 25
+    Height = 27
     UseSystemFont = False
     ActionManager = ActionManager1
     Caption = 'ActionMainMenuBar1'
@@ -114,5 +114,9 @@ object Form2: TForm2
       Caption = 'Block details'
       OnExecute = Action2Execute
     end
+  end
+  object FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink
+    Left = 120
+    Top = 128
   end
 end
